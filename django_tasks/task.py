@@ -26,6 +26,9 @@ if TYPE_CHECKING:
 
 DEFAULT_TASK_BACKEND_ALIAS = "default"
 DEFAULT_QUEUE_NAME = "default"
+MIN_PRIORITY = -100
+MAX_PRIORITY = 100
+DEFAULT_PRIORITY = 0
 
 
 class ResultStatus(TextChoices):
@@ -68,6 +71,7 @@ class Task(Generic[P, T]):
 
     def using(
         self,
+        *,
         priority: Optional[int] = None,
         queue_name: Optional[str] = None,
         run_after: Optional[Union[datetime, timedelta]] = None,
@@ -161,7 +165,7 @@ def task(function: Callable[P, T], /) -> Task[P, T]: ...
 @overload
 def task(
     *,
-    priority: int = 0,
+    priority: int = DEFAULT_PRIORITY,
     queue_name: str = DEFAULT_QUEUE_NAME,
     backend: str = DEFAULT_TASK_BACKEND_ALIAS,
 ) -> Callable[[Callable[P, T]], Task[P, T]]: ...
@@ -171,7 +175,7 @@ def task(
 def task(
     function: Optional[Callable[P, T]] = None,
     *,
-    priority: int = 0,
+    priority: int = DEFAULT_PRIORITY,
     queue_name: str = DEFAULT_QUEUE_NAME,
     backend: str = DEFAULT_TASK_BACKEND_ALIAS,
 ) -> Union[Task[P, T], Callable[[Callable[P, T]], Task[P, T]]]:
